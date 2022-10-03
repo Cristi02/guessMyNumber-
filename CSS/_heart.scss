@@ -1,0 +1,39 @@
+$width: 40px;
+$height: 40px;
+.heart {
+    background-color: red;
+    display: inline-block;
+    height: $height;
+    margin: 0 10px;
+    position: relative;
+    top: 0;
+    transform: rotate(-45deg);
+    width: $width;
+}
+
+#lives {
+    position: absolute;
+    top: 40%;
+    left: 60%;
+    transform: translate(-50%, -50%) rotate(45deg);
+}
+.heart:before,
+.heart:after {
+    content: "";
+    background-color: red;
+    border-radius: 50%;
+    height: $height;
+    position: absolute;
+    width: $width;
+    z-index: -1;
+}
+
+.heart:before {
+    top: -($height/2);
+    left: 0;
+}
+
+.heart:after {
+    left: $height/2;
+    top: 0;
+}
