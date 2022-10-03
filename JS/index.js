@@ -39,7 +39,6 @@ const guess = () => {
 };
 
 const gameOver = (win) => {
-    console.log("Over");
     toggleVisibility(document.querySelector(".game-over"));
     toggleVisibility(gameElement);
     const result = document.querySelector(".result");
@@ -51,7 +50,6 @@ const gameOver = (win) => {
 };
 
 const toggleVisibility = (DOMElement) => {
-    console.log("Toggles");
     DOMElement.classList.toggle("disabled");
 };
 
