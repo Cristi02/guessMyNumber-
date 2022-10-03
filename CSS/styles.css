@@ -26,6 +26,10 @@ button:hover {
   box-shadow: 2px 2px 2px rgb(226, 0, 226);
 }
 
+button:disabled {
+  background-color: grey;
+}
+
 input[type=number] {
   font-size: 1.5rem;
   padding: 10px;
@@ -64,6 +68,10 @@ input[type=number] {
 
 .error {
   color: red;
+}
+
+.highlight {
+  color: purple;
 }
 
 .heart {

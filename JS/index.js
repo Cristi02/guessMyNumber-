@@ -1,63 +1,58 @@
 import Game from "./Game.js";
-const chooseRange = document.querySelector(".choose-range");
-
 let game = null;
+const chooseRange = document.querySelector(".choose-range");
+const maxnumber = document.querySelector("#max-number");
+const gameElement = document.querySelector(".game");
+const playButton = document.querySelector("#play-button");
+const guessButton = document.querySelector("#take-a-guess");
+const answer = document.querySelector(".answer");
 
 const startGame = () => {
-    const maxnumber = document.querySelector("#max-number").value;
-    const error = checkInput(maxnumber);
-    if (error) {
-        document.querySelector(".choose-range .error").innerHTML = error;
-        return;
-    }
-
     toggleVisibility(chooseRange);
-    toggleVisibility(document.querySelector(".game"));
+    toggleVisibility(gameElement);
 
-    game = new Game(maxnumber);
-    console.log("The number:", game.theNumber);
+    game = new Game(maxnumber.value);
+    console.log("The answer (for cheating 😉):", game.theNumber);
     showLives();
-};
-
-const gameOver = (win) => {
-    document.querySelector(".game-over").classList.remove("disabled");
-    document.querySelector(".game").classList.add("disabled");
-    if (win) {
-        document.querySelector(".result").innerHTML =
-            "Congratulations! You won";
-        return;
-    }
-    document.querySelector(".result").innerHTML = "You lost";
-};
-
-const toggleVisibility = (DOMElement) => {
-    DOMElement.classList.toggle("disabled");
 };
 
 const guess = () => {
     const guessNumber = document.querySelector("#guess-number").value;
     document.querySelector("#guess-number").value = "";
-    const answer = document.querySelector(".answer");
-    answer.classList.remove("error");
 
-    const error = checkInput(guessNumber);
-    if (error) {
-        document.querySelector(".answer").innerHTML = error;
-        answer.classList.add("error");
-
-        return;
-    }
+    if (checkInput(+guessNumber)) return;
 
     const tryGuess = game.tryGuess(guessNumber);
 
     if (tryGuess === 1)
-        answer.innerHTML = `The number is greater than ${guessNumber}`;
+        answer.innerHTML = `The number is <span class='highlight'> greater </span> than ${guessNumber}`;
     else if (tryGuess === -1)
-        answer.innerHTML = `The number is less than ${guessNumber}`;
-    else gameOver(true);
-
+        answer.innerHTML = `The number is <span class='highlight'> less </span> than ${guessNumber}`;
+    else {
+        gameOver(true);
+        return;
+    }
     if (game.lives === 0) gameOver();
+
     updateGraphics();
+    document.querySelector("#guess-number").focus();
+};
+
+const gameOver = (win) => {
+    console.log("Over");
+    toggleVisibility(document.querySelector(".game-over"));
+    toggleVisibility(gameElement);
+    const result = document.querySelector(".result");
+    if (win) {
+        result.innerHTML = `Congratulations! You won. The number was ${game.theNumber}`;
+        return;
+    }
+    result.innerHTML = `You lost! The number was ${game.theNumber}`;
+};
+
+const toggleVisibility = (DOMElement) => {
+    console.log("Toggles");
+    DOMElement.classList.toggle("disabled");
 };
 
 const showLives = () => {
@@ -69,39 +64,58 @@ const showHistory = () => {
         ".history"
     ).innerHTML = `Wrong guesses: ${game.pastGuesses.join(" ")}`;
 };
+
 const updateGraphics = () => {
     showLives();
     showHistory();
 };
 
-const checkInput = (value) => {
-    if (!value) return "Value must be an integer";
+const checkInput = (e) => {
+    const value = Number.isInteger(e) ? e : e.target.value;
+    console.log(value);
+    let errorMessage = "";
+
+    if (!value) errorMessage = "Value must be an integer";
     try {
         parseInt(value);
-    } catch {
-        return "Value must be an integer";
+    } catch (err) {
+        console.log("Error cause", err.cause);
+        errorMessage = "Value must be an integer";
     }
-    if (+value < 0) return "Value must be a positive integer";
+    if (+value < 0) errorMessage = "Value must be a positive integer";
     if (game && +value > game.maxNumber)
-        return `Value must not be greater than ${game.maxNumber}`;
+        errorMessage = `Value must not be greater than ${game.maxNumber}`;
     if (game && game.pastGuesses.find((x) => x === +value))
-        return `You have already tried ${value}`;
-    return false;
+        errorMessage = `You have already tried ${value}`;
+
+    answer.classList.remove("error");
+    if (!chooseRange.classList.contains("disabled")) {
+        document.querySelector(".error").innerHTML = errorMessage;
+        playButton.disabled = !!errorMessage;
+    } else {
+        guessButton.disabled = !!errorMessage;
+        document.querySelector(".answer").innerHTML = errorMessage;
+        if (errorMessage) answer.classList.add("error");
+    }
+    return !!errorMessage;
 };
+
 // Setup
 const setup = () => {
-    document.querySelector("#play-button").addEventListener("click", startGame);
-    document.querySelector("#take-a-guess").addEventListener("click", guess);
+    playButton.addEventListener("click", startGame);
+    maxnumber.addEventListener("input", checkInput);
+    maxnumber.value = 20;
+
+    guessButton.addEventListener("click", guess);
+    document
+        .querySelector("#guess-number")
+        .addEventListener("input", checkInput);
     document
         .querySelector("#guess-number")
         .addEventListener("keypress", (e) => {
             if (e.key === "Enter") guess();
         });
     document.querySelector("#restart").addEventListener("click", Game.restart);
-    document.querySelector("#max-number").addEventListener("keypress", (e) => {
-        if (e.key === "Enter") startGame();
-    });
-    document.querySelector("#max-number").value = 20;
 };
 
 window.setup = setup;
