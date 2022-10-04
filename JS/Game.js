@@ -1,4 +1,4 @@
-export default class Game {
+class Game {
     #theNumber;
     #lives;
     #maxNumberGenerated;
