@@ -116,5 +116,3 @@ const setup = () => {
 
     document.querySelector("#restart").addEventListener("click", Game.restart);
 };
-
-window.setup = setup;
